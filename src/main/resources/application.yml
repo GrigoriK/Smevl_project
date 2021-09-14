@@ -1,0 +1,21 @@
+
+spring:
+ flyway:
+    enabled: true
+    schemas: database_schema
+ jpa:
+  hibernate:
+       ddl-auto: validate
+       dialect: org.hibernate.dialect.PostgreSQL95Dialect
+  properties:
+    hibernate:
+      show_sql: true
+      default_schema: database_schema
+      temp:
+       use_jdbc_metadata_defaults: false
+ datasource:
+  url: jdbc:postgresql://localhost:5555/postgres
+  username: postgres
+  password: postgres
+server:
+  port: 8085
