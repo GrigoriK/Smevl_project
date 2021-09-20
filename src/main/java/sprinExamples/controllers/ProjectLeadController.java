@@ -13,7 +13,7 @@ import java.util.Collection;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/v1/projectLead")
+@RequestMapping(value = "/api/v1/projectLead")
 public class ProjectLeadController {
 
     private final ProjectLeadService projectLeadService;

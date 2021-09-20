@@ -13,7 +13,7 @@ import java.util.Collection;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/v1/employee")
+@RequestMapping(value = "/api/v1/employee")
 public class EmployeeController {
 
     private final EmployeeService employeeService;

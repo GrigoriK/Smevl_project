@@ -13,7 +13,7 @@ import java.util.Collection;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/v1/project")
+@RequestMapping(value = "/api/v1/project")
 public class ProjectController {
 
     private final ProjectService projectService;

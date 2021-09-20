@@ -13,7 +13,7 @@ import java.util.Collection;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/v1/position")
+@RequestMapping(value = "/api/v1/position")
 public class PositionController {
 
     private final PositionService positionService;
