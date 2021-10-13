@@ -66,4 +66,9 @@ public class PositionService extends BaseEntityService<Position, PositionBean,
     protected PositionRepo getJpaRepository() {
         return positionRepo;
     }
+
+    @Override
+    protected void checkEntityBeforeSave(Position entity) {
+
+    }
 }

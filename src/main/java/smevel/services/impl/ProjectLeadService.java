@@ -106,6 +106,11 @@ public class ProjectLeadService extends BaseEntityService<ProjectLead, ProjectLe
         return projectLeadRepo;
     }
 
+    @Override
+    protected void checkEntityBeforeSave(ProjectLead entity) {
+
+    }
+
     private ProjectLeadBean madeEmployeeLeadOfProjectWithResult(String employeeId, String projectId) {
         Optional<Employee> optionalEmployee = employeesRepo.findById(UUID.fromString(employeeId));
         Optional<Project> optionalProject;

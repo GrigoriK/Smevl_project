@@ -73,4 +73,9 @@ public class ProjectService extends BaseEntityService<Project, ProjectBean,
     protected ProjectsRepo getJpaRepository() {
         return projectsRepo;
     }
+
+    @Override
+    protected void checkEntityBeforeSave(Project entity) {
+
+    }
 }

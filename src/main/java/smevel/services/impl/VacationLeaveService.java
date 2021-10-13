@@ -13,6 +13,7 @@ import smevel.repo.EmployeesRepo;
 import smevel.repo.VacationLeaveRepo;
 import smevel.services.abst.BaseEntityService;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -66,5 +67,15 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
     @Override
     protected VacationLeaveRepo getJpaRepository() {
         return vacationLeaveRepo;
+    }
+
+    @Override
+    protected void checkEntityBeforeSave(VacationLeave entity) {
+        Date vacationStartDate = entity.getVacationStartDate();
+        Date vacationEndDate = entity.getVacationEndDate();
+        if (vacationStartDate.compareTo(vacationEndDate) >= 0) {
+            throw new IllegalArgumentException("Vacation start after or equals vacation end date");
+        }
+
     }
 }

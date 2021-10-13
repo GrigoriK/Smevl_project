@@ -90,6 +90,7 @@ public abstract class BaseEntityService<E, B, I, R extends JpaRepository<E, UUID
         B bean = convertRequestBeanToEntityBean(inputBean);
         E entity = getEntityByEntityBean(bean, inputBean);
         prepareEntityBeforeSave(entity, inputBean);
+        checkEntityBeforeSave(entity);
         E saveEntity = saveEntity(entity);
         return convertEntityToBean(saveEntity);
     }
@@ -146,4 +147,6 @@ public abstract class BaseEntityService<E, B, I, R extends JpaRepository<E, UUID
     protected abstract String getEntityName();
 
     protected abstract R getJpaRepository();
+
+    protected abstract void checkEntityBeforeSave(E entity);
 }

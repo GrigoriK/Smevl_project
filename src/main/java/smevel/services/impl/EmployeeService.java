@@ -91,6 +91,11 @@ public class EmployeeService extends BaseEntityService<Employee, EmployeeBean,
         return employeesRepo;
     }
 
+    @Override
+    protected void checkEntityBeforeSave(Employee entity) {
+
+    }
+
     private EmployeeBean assignEmployeeToProjectWithResult(String employeeId, String projectId) {
         Optional<Employee> optionalEmployee = employeesRepo.findById(UUID.fromString(employeeId));
         if (optionalEmployee.isPresent()) {
