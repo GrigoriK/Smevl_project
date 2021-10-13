@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import smevel.beans.EmployeeBean;
 import smevel.beans.VacationLeaveBean;
 import smevel.beans.inputBean.InputVacationLeaveBean;
 import smevel.services.impl.VacationLeaveService;
@@ -32,6 +31,12 @@ public class VocationLeaveController {
     @RequestMapping(path = "/getAllVacationLeaves", method = RequestMethod.GET)
     public ResponseEntity<Collection<VacationLeaveBean>> getAllVacationLeaves() {
         return vacationLeaveService.getAllEntitiesWithResponse();
+    }
+
+    @RequestMapping(path = "/getVacationsBetweenDateRange", method = RequestMethod.GET)
+    public ResponseEntity<Collection<VacationLeaveBean>> getVacationsBetweenDateRange(@RequestParam(name = "startDate") String startDate,
+                                                                                      @RequestParam("endDate") String endDate) {
+        return vacationLeaveService.getVacationsByRange(startDate, endDate);
     }
 
 

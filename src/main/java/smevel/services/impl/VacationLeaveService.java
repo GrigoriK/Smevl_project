@@ -1,9 +1,11 @@
 package smevel.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import smevel.beans.VacationLeaveBean;
 import smevel.beans.inputBean.InputVacationLeaveBean;
+import smevel.constants.StringConstants;
 import smevel.converters.EntityToBeanConverter;
 import smevel.converters.RequestBeanToEntityBeanImpl;
 import smevel.converters.impl.BeanToEntityConverterImpl;
@@ -11,8 +13,11 @@ import smevel.entity.Employee;
 import smevel.entity.VacationLeave;
 import smevel.repo.EmployeesRepo;
 import smevel.repo.VacationLeaveRepo;
+import smevel.services.DateFormatter;
 import smevel.services.abst.BaseEntityService;
 
+import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,6 +35,14 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
     private final BeanToEntityConverterImpl beanToEntityConverter;
     private final EntityToBeanConverter entityToBeanConverter;
     private final RequestBeanToEntityBeanImpl requestBeanToEntityBean;
+
+    @Transactional
+    public ResponseEntity<Collection<VacationLeaveBean>> getVacationsByRange(String startDateString,
+                                                                             String endDateString) {
+        return getCollectionOfBean(() ->
+                        getEntitiesWithSupplier(() -> getVacationsByDateRanges(startDateString, endDateString)),
+                getMessageByDateRange(startDateString, endDateString));
+    }
 
     @Override
     protected VacationLeaveBean convertEntityToBean(VacationLeave entity) {
@@ -76,6 +89,18 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
         if (vacationStartDate.compareTo(vacationEndDate) >= 0) {
             throw new IllegalArgumentException("Vacation start after or equals vacation end date");
         }
+    }
 
+    private Collection<VacationLeave> getVacationsByDateRanges(String startDateString, String endDateString) {
+        Date startDate = DateFormatter.getDateByFormattedStringBy(startDateString);
+        Date endDate = DateFormatter.getDateByFormattedStringBy(endDateString);
+        return vacationLeaveRepo.findByDateRange(startDate, endDate);
+
+    }
+
+    private String getMessageByDateRange(String startDateString, String endDateString) {
+        return String.format(StringConstants.CAN_NOT_FIND_ENTITIES_BY_DATE_RANGE,
+                startDateString,
+                endDateString);
     }
 }

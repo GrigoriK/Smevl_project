@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import smevel.beans.*;
 import smevel.converters.BeanToEntityConverter;
 import smevel.entity.*;
+import smevel.services.DateFormatter;
 
 @Service
 public class BeanToEntityConverterImpl implements BeanToEntityConverter {
@@ -66,8 +67,10 @@ public class BeanToEntityConverterImpl implements BeanToEntityConverter {
         if (vacationLeaveBean != null) {
             VacationLeave vacationLeave = new VacationLeave();
             vacationLeave.setVacationId(vacationLeaveBean.getVacationId());
-            vacationLeave.setVacationStartDate(vacationLeaveBean.getVacationStartDate());
-            vacationLeave.setVacationEndDate(vacationLeaveBean.getVacationEndDate());
+            vacationLeave.setVacationStartDate(DateFormatter
+                    .getDateByFormattedStringBy(vacationLeaveBean.getVacationStartDate()));
+            vacationLeave.setVacationEndDate(DateFormatter
+                    .getDateByFormattedStringBy(vacationLeaveBean.getVacationEndDate()));
             vacationLeave.setEmployee(convertEmployeeBeanToEmployee(vacationLeaveBean.getEmployeeBean()));
             return vacationLeave;
         } else {

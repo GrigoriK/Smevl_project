@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import smevel.beans.*;
 import smevel.converters.EntityToBeanConverter;
 import smevel.entity.*;
+import smevel.services.DateFormatter;
 
 import java.util.Optional;
 
@@ -61,8 +62,10 @@ public class EntityToBeanConverterImpl implements EntityToBeanConverter {
         return Optional.ofNullable(vacationLeave)
                 .map(vacation -> VacationLeaveBean.builder()
                         .vacationId(vacationLeave.getVacationId())
-                        .vacationStartDate(vacationLeave.getVacationStartDate())
-                        .vacationEndDate(vacationLeave.getVacationEndDate())
+                        .vacationStartDate(DateFormatter
+                                .getFormattedStringByDate(vacationLeave.getVacationStartDate()))
+                        .vacationEndDate(DateFormatter
+                                .getFormattedStringByDate(vacationLeave.getVacationEndDate()))
                         .employeeBean(convertEmployeeToEmployeeBean(vacationLeave.getEmployee()))
                         .build())
                 .orElse(null);

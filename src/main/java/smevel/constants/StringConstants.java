@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class StringConstants {
     public static final String ID = "id";
+    public static final String CAN_NOT_FIND_ENTITY = "Can't find  %s";
     public static final String CAN_NOT_FIND_ENTITY_BY_FIELD = "Can't find  %s by %s: %s";
     public static final String CAN_NOT_FIND = "Can't find  %s";
     public static final String CAN_NOT_CREATE = "Can't create  %s";
@@ -32,6 +33,10 @@ public class StringConstants {
     public static final String VACATION_LEAVE = "Vacation leave";
     public static final String VACATION_LEAVES = "Vacation leave";
     public static final String VACATION_ID = "vacationLeaveId";
+    public static final String CAN_NOT_FIND_ENTITIES_BY_DATE_RANGE = "Can't find  vacation leaves between this" +
+            "date range: %s - %s";
+
+    public static final String DATE_FORMAT = "dd.MM.yyyy";
 
     public static final Map<String, String> entitySingleToPluralNames = new HashMap<String, String>() {{
         put(EMPLOYEE, EMPLOYEES);
