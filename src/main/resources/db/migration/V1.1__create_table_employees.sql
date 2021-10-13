@@ -1,4 +1,4 @@
-create  table  employees
+create  table IF NOT EXISTS  employees
 (
     "employee_id" uuid NOT NULL,
     name character varying(255) NOT NULL,

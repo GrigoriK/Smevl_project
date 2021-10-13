@@ -1,4 +1,4 @@
-create table project_leads
+create table IF NOT EXISTS project_leads
 (
     "project_lead_id" uuid NOT NULL,
     "employee_id" uuid NOT NULL,
