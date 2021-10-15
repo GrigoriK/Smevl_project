@@ -35,6 +35,7 @@ public class StringConstants {
     public static final String VACATION_ID = "vacationLeaveId";
     public static final String CAN_NOT_FIND_ENTITIES_BY_DATE_RANGE = "Can't find  vacation leaves between this" +
             "date range: %s - %s";
+    public static final String CAN_NOT_FIND_ENTITIES_BY_FIELD = "Can't find  vacation leaves by %s: %s";
 
     public static final String DATE_FORMAT = "dd.MM.yyyy";
 

@@ -40,4 +40,16 @@ public class VocationLeaveController {
     }
 
 
+    @RequestMapping(path = "/getVacationsByEmployeeId", method = RequestMethod.GET)
+    public ResponseEntity<Collection<VacationLeaveBean>> getVacationsByEmployeeId(@RequestParam(name = "employeeId") String employeeId) {
+        return vacationLeaveService.getVacationsListByEmployeeId(employeeId);
+    }
+
+
+    @RequestMapping(path = "/getVacationsByProjectId", method = RequestMethod.GET)
+    public ResponseEntity<Collection<VacationLeaveBean>> getVacationsByProjectId(@RequestParam(name = "projectId") String projectId) {
+        return vacationLeaveService.getVacationsListByProjectId(projectId);
+    }
+
+
 }
