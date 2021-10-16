@@ -20,7 +20,6 @@ public class Project implements BaseEntity {
     @OneToOne(mappedBy = "project")
     private ProjectLead projectLead;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "project")
     private Collection<Employee> employees;
 }
