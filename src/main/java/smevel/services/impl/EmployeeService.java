@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import smevel.beans.EmployeeBean;
 import smevel.beans.inputBean.InputEmployeeBean;
+import smevel.beans.outputBean.OutputEmployeeBean;
 import smevel.converters.EntityToBeanConverter;
+import smevel.converters.EntityToOutputBeanConverter;
 import smevel.converters.RequestBeanToEntityBeanImpl;
 import smevel.converters.impl.BeanToEntityConverterImpl;
 import smevel.entity.Employee;
@@ -27,23 +29,25 @@ import static smevel.constants.StringConstants.*;
 @Service
 @Slf4j
 public class EmployeeService extends BaseEntityService<Employee, EmployeeBean,
-        InputEmployeeBean, EmployeesRepo> {
+        InputEmployeeBean, OutputEmployeeBean, EmployeesRepo> {
     private final EmployeesRepo employeesRepo;
     private final ProjectsRepo projectsRepo;
     private final PositionRepo positionRepo;
+
     private final BeanToEntityConverterImpl beanToEntityConverter;
     private final EntityToBeanConverter entityToBeanConverter;
     private final RequestBeanToEntityBeanImpl requestBeanToEntityBean;
+    private final EntityToOutputBeanConverter entityToOutputBeanConverter;
 
     @Transactional
-    public ResponseEntity<EmployeeBean> assignEmployeeToProject(String employeeId, String projectId) {
+    public ResponseEntity<OutputEmployeeBean> assignEmployeeToProject(String employeeId, String projectId) {
 
         return updateEntityWithResponse(() -> assignEmployeeToProjectWithResult(employeeId, projectId),
                 getUpdateEntityMessage(employeeId));
     }
 
     @Transactional
-    public ResponseEntity<EmployeeBean> assignPositionToEmployee(String employeeId, String positionId) {
+    public ResponseEntity<OutputEmployeeBean> assignPositionToEmployee(String employeeId, String positionId) {
 
         return updateEntityWithResponse(() -> assignPositionToEmployeeWithResult(employeeId, positionId),
                 getUpdateEntityMessage(employeeId));
@@ -96,7 +100,12 @@ public class EmployeeService extends BaseEntityService<Employee, EmployeeBean,
 
     }
 
-    private EmployeeBean assignEmployeeToProjectWithResult(String employeeId, String projectId) {
+    @Override
+    protected OutputEmployeeBean convertEntityToOutPutBean(Employee entity) {
+        return entityToOutputBeanConverter.convertEmployeeToOutputEmployeeBean(entity);
+    }
+
+    private OutputEmployeeBean assignEmployeeToProjectWithResult(String employeeId, String projectId) {
         Optional<Employee> optionalEmployee = employeesRepo.findById(UUID.fromString(employeeId));
         if (optionalEmployee.isPresent()) {
             Employee employee = optionalEmployee.get();
@@ -109,13 +118,13 @@ public class EmployeeService extends BaseEntityService<Employee, EmployeeBean,
                     log.info(String.format(CAN_NOT_FIND_ENTITY_BY_FIELD, PROJECT, PROJECT_ID, projectId));
                 }
             }
-            return entityToBeanConverter.convertEmployeeToEmployeeBean(employee);
+            return convertEntityToOutPutBean(employee);
         }
         log.info(String.format(CAN_NOT_FIND_ENTITY_BY_FIELD, EMPLOYEE, EMPLOYEE_ID, employeeId));
         return null;
     }
 
-    private EmployeeBean assignPositionToEmployeeWithResult(String employeeId, String positionId) {
+    private OutputEmployeeBean assignPositionToEmployeeWithResult(String employeeId, String positionId) {
         Optional<Employee> optionalEmployee = employeesRepo.findById(UUID.fromString(employeeId));
         if (optionalEmployee.isPresent()) {
             Employee employee = optionalEmployee.get();
@@ -128,7 +137,7 @@ public class EmployeeService extends BaseEntityService<Employee, EmployeeBean,
                     log.info(String.format(CAN_NOT_FIND_ENTITY_BY_FIELD, POSITION, POSITION_ID, positionId));
                 }
             }
-            return entityToBeanConverter.convertEmployeeToEmployeeBean(employee);
+            return convertEntityToOutPutBean(employee);
         }
         log.info(String.format(CAN_NOT_FIND_ENTITY_BY_FIELD, EMPLOYEE, EMPLOYEE_ID, employeeId));
         return null;

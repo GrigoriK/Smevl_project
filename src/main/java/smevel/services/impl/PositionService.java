@@ -5,7 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import smevel.beans.PositionBean;
 import smevel.beans.inputBean.InputPositionBean;
+import smevel.beans.outputBean.OutputPositionBean;
 import smevel.converters.EntityToBeanConverter;
+import smevel.converters.EntityToOutputBeanConverter;
 import smevel.converters.RequestBeanToEntityBeanImpl;
 import smevel.converters.impl.BeanToEntityConverterImpl;
 import smevel.entity.Position;
@@ -21,16 +23,17 @@ import static smevel.constants.StringConstants.POSITION_NAME;
 @Service
 @AllArgsConstructor
 public class PositionService extends BaseEntityService<Position, PositionBean,
-        InputPositionBean, PositionRepo> {
+        InputPositionBean, OutputPositionBean, PositionRepo> {
 
     private final PositionRepo positionRepo;
     private final BeanToEntityConverterImpl beanToEntityConverter;
     private final EntityToBeanConverter entityToBeanConverter;
     private final RequestBeanToEntityBeanImpl requestBeanToEntityBean;
+    private final EntityToOutputBeanConverter entityToOutputBeanConverter;
 
 
     @Transactional
-    public ResponseEntity<Collection<PositionBean>> getPositionByName(String positionName) {
+    public ResponseEntity<Collection<OutputPositionBean>> getPositionByName(String positionName) {
         return getCollectionOfBean(() ->
                         getEntitiesWithSupplier(() -> positionRepo.findByPositionName(positionName)),
                 getMessageByFieldNameAndValue(POSITION_NAME, positionName));
@@ -70,5 +73,10 @@ public class PositionService extends BaseEntityService<Position, PositionBean,
     @Override
     protected void checkEntityBeforeSave(Position entity) {
 
+    }
+
+    @Override
+    protected OutputPositionBean convertEntityToOutPutBean(Position entity) {
+        return entityToOutputBeanConverter.convertPositionToOutputEPositionBean(entity);
     }
 }

@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import smevel.beans.VacationLeaveBean;
 import smevel.beans.inputBean.InputVacationLeaveBean;
+import smevel.beans.outputBean.OutputVacationLeaveBean;
 import smevel.constants.StringConstants;
 import smevel.converters.EntityToBeanConverter;
+import smevel.converters.EntityToOutputBeanConverter;
 import smevel.converters.RequestBeanToEntityBeanImpl;
 import smevel.converters.impl.BeanToEntityConverterImpl;
 import smevel.entity.Employee;
@@ -29,7 +31,7 @@ import static smevel.constants.StringConstants.VACATION_LEAVE;
 @Slf4j
 @RequiredArgsConstructor
 public class VacationLeaveService extends BaseEntityService<VacationLeave,
-        VacationLeaveBean, InputVacationLeaveBean, VacationLeaveRepo> {
+        VacationLeaveBean, InputVacationLeaveBean, OutputVacationLeaveBean, VacationLeaveRepo> {
 
     private final VacationLeaveRepo vacationLeaveRepo;
     private final EmployeesRepo employeesRepo;
@@ -38,10 +40,11 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
     private final BeanToEntityConverterImpl beanToEntityConverter;
     private final EntityToBeanConverter entityToBeanConverter;
     private final RequestBeanToEntityBeanImpl requestBeanToEntityBean;
+    private final EntityToOutputBeanConverter entityToOutputBeanConverter;
 
     @Transactional
-    public ResponseEntity<Collection<VacationLeaveBean>> getVacationsByRange(String startDateString,
-                                                                             String endDateString) {
+    public ResponseEntity<Collection<OutputVacationLeaveBean>> getVacationsByRange(String startDateString,
+                                                                                   String endDateString) {
         return getCollectionOfBean(() ->
                         getEntitiesWithSupplier(() -> getVacationsByDateRanges(startDateString, endDateString)),
                 getMessageByDateRange(startDateString, endDateString));
@@ -49,7 +52,7 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
 
 
     @Transactional
-    public ResponseEntity<Collection<VacationLeaveBean>> getVacationsListByEmployeeId(String employeeId) {
+    public ResponseEntity<Collection<OutputVacationLeaveBean>> getVacationsListByEmployeeId(String employeeId) {
         return getCollectionOfBean(() ->
                         getEntitiesWithSupplier(() -> getVacationsByEmployeeId(employeeId)),
                 getMessageByFieldWithId(StringConstants.EMPLOYEE_ID, employeeId));
@@ -57,7 +60,7 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
 
 
     @Transactional
-    public ResponseEntity<Collection<VacationLeaveBean>> getVacationsListByProjectId(String projectId) {
+    public ResponseEntity<Collection<OutputVacationLeaveBean>> getVacationsListByProjectId(String projectId) {
         return getCollectionOfBean(() ->
                         getEntitiesWithSupplier(() -> getVacationsByProjectId(projectId)),
                 getMessageByFieldWithId(StringConstants.PROJECT_ID, projectId));
@@ -110,6 +113,11 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
         }
     }
 
+    @Override
+    protected OutputVacationLeaveBean convertEntityToOutPutBean(VacationLeave entity) {
+        return entityToOutputBeanConverter.convertVacationLeaveToOutputEVacationLeaveBean(entity);
+    }
+
     private Collection<VacationLeave> getVacationsByDateRanges(String startDateString, String endDateString) {
         Date startDate = DateFormatter.getDateByFormattedStringBy(startDateString);
         Date endDate = DateFormatter.getDateByFormattedStringBy(endDateString);
@@ -137,7 +145,7 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
             //todo research why project.getEmployees() doesn't work
-            Collection<Employee> employees = employeesRepo.findByProject(project);
+            Collection<Employee> employees = project.getEmployees();
             if (!CollectionUtils.isEmpty(employees)) {
                 return vacationLeaveRepo.findByEmployeeIn(employees);
             }

@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import smevel.beans.ProjectLeadBean;
 import smevel.beans.inputBean.InputProjectLeadBean;
+import smevel.beans.outputBean.OutputProjectLeadBean;
 import smevel.converters.EntityToBeanConverter;
+import smevel.converters.EntityToOutputBeanConverter;
 import smevel.converters.RequestBeanToEntityBeanImpl;
 import smevel.converters.impl.BeanToEntityConverterImpl;
 import smevel.entity.Employee;
@@ -30,7 +32,7 @@ import static smevel.constants.StringConstants.*;
 @Slf4j
 @AllArgsConstructor
 public class ProjectLeadService extends BaseEntityService<ProjectLead, ProjectLeadBean,
-        InputProjectLeadBean, ProjectLeadRepo> {
+        InputProjectLeadBean, OutputProjectLeadBean, ProjectLeadRepo> {
 
 
     private final ProjectLeadRepo projectLeadRepo;
@@ -39,15 +41,16 @@ public class ProjectLeadService extends BaseEntityService<ProjectLead, ProjectLe
     private final EmployeesRepo employeesRepo;
     private final ProjectsRepo projectsRepo;
     private final RequestBeanToEntityBeanImpl requestBeanToEntityBean;
+    private final EntityToOutputBeanConverter entityToOutputBeanConverter;
 
     @Transactional
-    public ResponseEntity<ProjectLeadBean> madeEmployeeLeadOfProject(String employeeId, String projectId) {
+    public ResponseEntity<OutputProjectLeadBean> madeEmployeeLeadOfProject(String employeeId, String projectId) {
         return updateEntityWithResponse(() -> madeEmployeeLeadOfProjectWithResult(employeeId, projectId),
                 getUpdateEntityMessage(employeeId));
     }
 
     @Transactional
-    public ResponseEntity<Collection<ProjectLeadBean>> getProjectLeadByProjectId(String projectId) {
+    public ResponseEntity<Collection<OutputProjectLeadBean>> getProjectLeadByProjectId(String projectId) {
         return getCollectionOfBean(() -> getProjectLeadBeanByProjectId(projectId),
                 getMessageByFieldNameAndValue(PROJECT_ID, projectId));
     }
@@ -111,7 +114,12 @@ public class ProjectLeadService extends BaseEntityService<ProjectLead, ProjectLe
 
     }
 
-    private ProjectLeadBean madeEmployeeLeadOfProjectWithResult(String employeeId, String projectId) {
+    @Override
+    protected OutputProjectLeadBean convertEntityToOutPutBean(ProjectLead entity) {
+        return entityToOutputBeanConverter.convertProjectLeadToOutputEProjectLeadBean(entity);
+    }
+
+    private OutputProjectLeadBean madeEmployeeLeadOfProjectWithResult(String employeeId, String projectId) {
         Optional<Employee> optionalEmployee = employeesRepo.findById(UUID.fromString(employeeId));
         Optional<Project> optionalProject;
         Optional<ProjectLead> projectLeadById = projectLeadRepo.findById(UUID.fromString(projectId));
@@ -133,7 +141,7 @@ public class ProjectLeadService extends BaseEntityService<ProjectLead, ProjectLe
                 optionalProject.ifPresent(projectLead::setProject);
                 projectLead.setEmployee(employee);
                 ProjectLead savedProjectLeadEntity = projectLeadRepo.save(projectLead);
-                return convertEntityToBean(savedProjectLeadEntity);
+                return convertEntityToOutPutBean(savedProjectLeadEntity);
             } else {
                 log.info("Employee isn't assigned to any project");
                 return null;
@@ -144,10 +152,10 @@ public class ProjectLeadService extends BaseEntityService<ProjectLead, ProjectLe
         }
     }
 
-    private Collection<ProjectLeadBean> getProjectLeadBeanByProjectId(String projectId) {
+    private Collection<OutputProjectLeadBean> getProjectLeadBeanByProjectId(String projectId) {
         Collection<ProjectLead> projectLeads = projectLeadRepo
                 .findByProjectId(UUID.fromString(projectId));
-        return projectLeads.stream().map(this::convertEntityToBean).collect(Collectors.toList());
+        return projectLeads.stream().map(this::convertEntityToOutPutBean).collect(Collectors.toList());
     }
 
 }

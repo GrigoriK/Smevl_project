@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import smevel.beans.ProjectBean;
 import smevel.beans.inputBean.InputProjectBean;
+import smevel.beans.outputBean.OutputProjectBean;
 import smevel.converters.EntityToBeanConverter;
+import smevel.converters.EntityToOutputBeanConverter;
 import smevel.converters.RequestBeanToEntityBeanImpl;
 import smevel.converters.impl.BeanToEntityConverterImpl;
 import smevel.entity.Project;
@@ -22,23 +24,24 @@ import static smevel.constants.StringConstants.*;
 @Slf4j
 @AllArgsConstructor
 public class ProjectService extends BaseEntityService<Project, ProjectBean,
-        InputProjectBean, ProjectsRepo> {
+        InputProjectBean, OutputProjectBean, ProjectsRepo> {
 
     private final ProjectsRepo projectsRepo;
     private final BeanToEntityConverterImpl beanToEntityConverter;
     private final EntityToBeanConverter entityToBeanConverter;
     private final RequestBeanToEntityBeanImpl requestBeanToEntityBean;
+    private final EntityToOutputBeanConverter entityToOutputBeanConverter;
 
 
     @Transactional
-    public ResponseEntity<Collection<ProjectBean>> getProjectByName(String projectName) {
+    public ResponseEntity<Collection<OutputProjectBean>> getProjectByName(String projectName) {
         return getCollectionOfBean(() ->
                         getEntitiesWithSupplier(() -> projectsRepo.findByProjectName(projectName)),
                 getMessageByFieldNameAndValue(PROJECT_NAME, projectName));
     }
 
     @Transactional
-    public ResponseEntity<Collection<ProjectBean>> getProjectByCode(String projectCode) {
+    public ResponseEntity<Collection<OutputProjectBean>> getProjectByCode(String projectCode) {
         return getCollectionOfBean(() ->
                         getEntitiesWithSupplier(() -> projectsRepo.findByProjectCode(projectCode)),
                 getMessageByFieldNameAndValue(PROJECT_CODE, projectCode));
@@ -77,5 +80,10 @@ public class ProjectService extends BaseEntityService<Project, ProjectBean,
     @Override
     protected void checkEntityBeforeSave(Project entity) {
 
+    }
+
+    @Override
+    protected OutputProjectBean convertEntityToOutPutBean(Project entity) {
+        return entityToOutputBeanConverter.convertProjectToOutputEProjectBean(entity);
     }
 }

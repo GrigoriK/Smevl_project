@@ -13,17 +13,17 @@ import java.util.stream.Collectors;
 import static smevel.constants.StringConstants.*;
 
 @Slf4j
-public abstract class BaseEntityService<E, B, I, R extends JpaRepository<E, UUID>> {
+public abstract class BaseEntityService<E, B, I, O, R extends JpaRepository<E, UUID>> {
 
 
     @Transactional
-    public ResponseEntity<B> addNewEntityWithResponse(I inputBean) {
+    public ResponseEntity<O> addNewEntityWithResponse(I inputBean) {
         return addNewEntityWithResponse(
                 () -> addNewEntity(inputBean), getCanNotCreateMessage());
     }
 
     @Transactional
-    public ResponseEntity<Collection<B>> getEntityByIdWithResponse(String id) {
+    public ResponseEntity<Collection<O>> getEntityByIdWithResponse(String id) {
         return getCollectionOfBean(() ->
                         getEntitiesWithSupplier(() ->
                                 getOptionalEntityById(id)),
@@ -31,12 +31,12 @@ public abstract class BaseEntityService<E, B, I, R extends JpaRepository<E, UUID
     }
 
     @Transactional
-    public ResponseEntity<Collection<B>> getAllEntitiesWithResponse() {
+    public ResponseEntity<Collection<O>> getAllEntitiesWithResponse() {
         return getCollectionOfBean(this::getAllEntityBeans,
                 getCanNotFindMessage());
     }
 
-    protected ResponseEntity<Collection<B>> getCollectionOfBean(Supplier<Collection<B>> getBeanSupplier,
+    protected ResponseEntity<Collection<O>> getCollectionOfBean(Supplier<Collection<O>> getBeanSupplier,
                                                                 String logMessage) {
         try {
             return new ResponseEntity<>(
@@ -50,7 +50,7 @@ public abstract class BaseEntityService<E, B, I, R extends JpaRepository<E, UUID
         }
     }
 
-    protected ResponseEntity<B> addNewEntityWithResponse(Supplier<B> addEntitySupplier, String errorMessage) {
+    protected ResponseEntity<O> addNewEntityWithResponse(Supplier<O> addEntitySupplier, String errorMessage) {
         try {
             return new ResponseEntity<>(addEntitySupplier.get(), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -60,7 +60,7 @@ public abstract class BaseEntityService<E, B, I, R extends JpaRepository<E, UUID
         }
     }
 
-    protected ResponseEntity<B> updateEntityWithResponse(Supplier<B> addEntitySupplier, String errorMessage) {
+    protected ResponseEntity<O> updateEntityWithResponse(Supplier<O> addEntitySupplier, String errorMessage) {
         try {
             return new ResponseEntity<>(addEntitySupplier.get(), HttpStatus.OK);
         } catch (Exception e) {
@@ -79,26 +79,26 @@ public abstract class BaseEntityService<E, B, I, R extends JpaRepository<E, UUID
         }
     }
 
-    protected Collection<B> getAllEntityBeans() {
+    protected Collection<O> getAllEntityBeans() {
         Collection<E> entities = getAllEntities();
         return entities.stream()
-                .map(this::convertEntityToBean)
+                .map(this::convertEntityToOutPutBean)
                 .collect(Collectors.toList());
     }
 
-    protected B addNewEntity(I inputBean) {
+    protected O addNewEntity(I inputBean) {
         B bean = convertRequestBeanToEntityBean(inputBean);
         E entity = getEntityByEntityBean(bean, inputBean);
         prepareEntityBeforeSave(entity, inputBean);
         checkEntityBeforeSave(entity);
         E saveEntity = saveEntity(entity);
-        return convertEntityToBean(saveEntity);
+        return convertEntityToOutPutBean(saveEntity);
     }
 
-    protected Collection<B> getEntitiesWithSupplier(Supplier<Collection<E>> entitySupplier) {
+    protected Collection<O> getEntitiesWithSupplier(Supplier<Collection<E>> entitySupplier) {
         Collection<E> entities = entitySupplier.get();
         return entities.stream()
-                .map(this::convertEntityToBean)
+                .map(this::convertEntityToOutPutBean)
                 .collect(Collectors.toList());
     }
 
@@ -149,4 +149,6 @@ public abstract class BaseEntityService<E, B, I, R extends JpaRepository<E, UUID
     protected abstract R getJpaRepository();
 
     protected abstract void checkEntityBeforeSave(E entity);
+
+    protected abstract O convertEntityToOutPutBean(E entity);
 }
