@@ -1,4 +1,4 @@
-create table projects
+create table IF NOT EXISTS projects
 (
     "project_id" uuid NOT NULL,
     project_name character varying(255) NOT NULL,
