@@ -1,4 +1,4 @@
-package smevel.beans.excel;
+package smevel.dto.excel.data;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,11 +7,11 @@ import java.util.Date;
 
 @Data
 @Builder
-public class EmployeeVacationLeaveBean {
-    private String NameAndSurname;
+public class VacationDateRangeReportData {
+    private String nameAndSurname;
     private Date vlStartDate;
     private Date vlEndDate;
+    //days
     private int vlDuration;
     private String positionName;
-
 }
