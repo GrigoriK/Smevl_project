@@ -32,7 +32,7 @@ public abstract class BaseEntityService<E, B, I, O, R extends JpaRepository<E, U
 
     @Transactional
     public ResponseEntity<Collection<O>> getAllEntitiesWithResponse() {
-        return getCollectionOfBean(this::getAllEntityBeans,
+        return getCollectionOfBean(this::getAllOutputEntityBeans,
                 getCanNotFindMessage());
     }
 
@@ -79,10 +79,17 @@ public abstract class BaseEntityService<E, B, I, O, R extends JpaRepository<E, U
         }
     }
 
-    protected Collection<O> getAllEntityBeans() {
+    public Collection<O> getAllOutputEntityBeans() {
         Collection<E> entities = getAllEntities();
         return entities.stream()
                 .map(this::convertEntityToOutPutBean)
+                .collect(Collectors.toList());
+    }
+
+    public Collection<B> getAllEntityBeans() {
+        Collection<E> entities = getAllEntities();
+        return entities.stream()
+                .map(this::convertEntityToBean)
                 .collect(Collectors.toList());
     }
 

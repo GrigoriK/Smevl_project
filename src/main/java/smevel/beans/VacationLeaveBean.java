@@ -3,6 +3,7 @@ package smevel.beans;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Data
@@ -11,9 +12,9 @@ public class VacationLeaveBean {
 
     private UUID vacationId;
 
-    private String vacationStartDate;
+    private Date vacationStartDate;
 
-    private String vacationEndDate;
+    private Date vacationEndDate;
 
     private EmployeeBean employeeBean;
 }
