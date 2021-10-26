@@ -1,6 +1,8 @@
 package smevel.constants;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class StringConstants {
@@ -44,4 +46,7 @@ public class StringConstants {
         put(POSITION, POSITIONS);
         put(PROJECT, PROJECTS);
     }};
+
+    public static List<String> allListOfVacations = Arrays.asList("ФИО", "Начало отпуска", "Конец отпуска",
+            "Длительность отпуска (днях)", "Должность");
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import smevel.beans.EmployeeBean;
 import smevel.beans.PositionBean;
 import smevel.beans.VacationLeaveBean;
-import smevel.dto.excel.data.AllVacationReportData;
+import smevel.dto.excel.data.VacationDateRangeReportData;
 import smevel.services.impl.VacationLeaveService;
 
 import javax.transaction.Transactional;
@@ -17,20 +17,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class AllVacationReportDataCollector {
+public class VacationDateRangeReportDataCollector {
 
     private final VacationLeaveService vacationLeaveService;
 
     @Transactional
-    public Collection<AllVacationReportData> collectData() {
+    public Collection<VacationDateRangeReportData> collectData() {
         Collection<VacationLeaveBean> vlBeans = vacationLeaveService.getAllEntityBeans();
         return vlBeans.stream()
-                .map(this::getAllVacationReportDataByVacationLeaveBean)
+                .map(this::getVacationDateRangeReportDataByVacationLeaveBean)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
-    private AllVacationReportData getAllVacationReportDataByVacationLeaveBean(VacationLeaveBean vacationLeaveBean) {
+    private VacationDateRangeReportData getVacationDateRangeReportDataByVacationLeaveBean(VacationLeaveBean vacationLeaveBean) {
         EmployeeBean employeeBean = vacationLeaveBean.getEmployeeBean();
         if (employeeBean == null) {
             return null;
@@ -43,7 +43,7 @@ public class AllVacationReportDataCollector {
                 String positionName = positionBean.getPositionName();
                 Date vacationStartDate = vacationLeaveBean.getVacationStartDate();
                 Date vacationEndDate = vacationLeaveBean.getVacationEndDate();
-                return AllVacationReportData.builder()
+                return VacationDateRangeReportData.builder()
                         .nameAndSurname(nameSurname)
                         .vlStartDate(vacationStartDate)
                         .vlEndDate(vacationEndDate)
@@ -56,7 +56,8 @@ public class AllVacationReportDataCollector {
 
 
     public int getVlDuration(Date vlStartDate, Date vlEndDate) {
-        long diff = vlEndDate.getTime() - vlStartDate.getTime();
+        long diff = vlStartDate.getTime() - vlEndDate.getTime();
         return (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
     }
+
 }

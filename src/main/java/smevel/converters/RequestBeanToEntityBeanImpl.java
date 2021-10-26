@@ -3,6 +3,7 @@ package smevel.converters;
 import org.springframework.stereotype.Service;
 import smevel.beans.*;
 import smevel.beans.inputBean.*;
+import smevel.services.DateFormatter;
 
 import java.util.Optional;
 
@@ -51,8 +52,10 @@ public class RequestBeanToEntityBeanImpl implements RequestBeanToEntityBean {
         return Optional.ofNullable(inputVacationLeaveBean)
                 .map(inputBean -> VacationLeaveBean
                         .builder()
-                        .vacationStartDate(inputBean.getVacationStartDate())
-                        .vacationEndDate(inputBean.getVacationEndDate())
+                        .vacationStartDate(DateFormatter
+                                .getDateByFormattedStringBy(inputBean.getVacationStartDate()))
+                        .vacationEndDate(DateFormatter
+                                .getDateByFormattedStringBy(inputBean.getVacationEndDate()))
                         .build())
                 .orElse(null);
     }
