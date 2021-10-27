@@ -1,17 +1,7 @@
 package smevel.dto.excel.data;
 
 import lombok.Builder;
-import lombok.Data;
 
-import java.util.Date;
+public class VacationDateRangeReportData extends BaseVacationLeaveData {
 
-@Data
-@Builder
-public class VacationDateRangeReportData {
-    private String nameAndSurname;
-    private Date vlStartDate;
-    private Date vlEndDate;
-    //days
-    private int vlDuration;
-    private String positionName;
 }

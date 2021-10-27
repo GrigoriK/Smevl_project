@@ -46,7 +46,4 @@ public class StringConstants {
         put(POSITION, POSITIONS);
         put(PROJECT, PROJECTS);
     }};
-
-    public static List<String> allListOfVacations = Arrays.asList("ФИО", "Начало отпуска", "Конец отпуска",
-            "Длительность отпуска (днях)", "Должность");
 }

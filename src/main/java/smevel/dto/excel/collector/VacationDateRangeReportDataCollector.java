@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import smevel.beans.EmployeeBean;
 import smevel.beans.PositionBean;
+import smevel.beans.ProjectBean;
 import smevel.beans.VacationLeaveBean;
 import smevel.dto.excel.data.VacationDateRangeReportData;
+import smevel.dto.excel.filter.DateRangeVacationFilter;
 import smevel.services.impl.VacationLeaveService;
 
 import javax.transaction.Transactional;
@@ -22,8 +24,9 @@ public class VacationDateRangeReportDataCollector {
     private final VacationLeaveService vacationLeaveService;
 
     @Transactional
-    public Collection<VacationDateRangeReportData> collectData() {
-        Collection<VacationLeaveBean> vlBeans = vacationLeaveService.getAllEntityBeans();
+    public Collection<VacationDateRangeReportData> collectData(DateRangeVacationFilter filter) {
+        Collection<VacationLeaveBean> vlBeans = vacationLeaveService
+                .getVacationsBeansByDateRanges(filter.getVacationStartDate(), filter.getVacationEndDate());
         return vlBeans.stream()
                 .map(this::getVacationDateRangeReportDataByVacationLeaveBean)
                 .filter(Objects::nonNull)
@@ -37,26 +40,27 @@ public class VacationDateRangeReportDataCollector {
         } else {
             String nameSurname = employeeBean.getName() + " " + employeeBean.getFemale();
             PositionBean positionBean = employeeBean.getPositionBean();
-            if (positionBean == null) {
+            ProjectBean projectBean = employeeBean.getProjectBean();
+            if (positionBean == null || projectBean == null) {
                 return null;
             } else {
-                String positionName = positionBean.getPositionName();
                 Date vacationStartDate = vacationLeaveBean.getVacationStartDate();
                 Date vacationEndDate = vacationLeaveBean.getVacationEndDate();
-                return VacationDateRangeReportData.builder()
-                        .nameAndSurname(nameSurname)
-                        .vlStartDate(vacationStartDate)
-                        .vlEndDate(vacationEndDate)
-                        .vlDuration(getVlDuration(vacationStartDate, vacationEndDate))
-                        .positionName(positionName)
-                        .build();
+                VacationDateRangeReportData vacationDateRangeReportData = new VacationDateRangeReportData();
+                vacationDateRangeReportData.setNameAndSurname(nameSurname);
+                vacationDateRangeReportData.setVlStartDate(vacationStartDate);
+                vacationDateRangeReportData.setVlEndDate(vacationEndDate);
+                vacationDateRangeReportData.setVlDuration(getVlDuration(vacationStartDate, vacationEndDate));
+                vacationDateRangeReportData.setPositionName(positionBean.getPositionName());
+                vacationDateRangeReportData.setProjectName(projectBean.getProjectName());
+                return vacationDateRangeReportData;
             }
         }
     }
 
 
     public int getVlDuration(Date vlStartDate, Date vlEndDate) {
-        long diff = vlStartDate.getTime() - vlEndDate.getTime();
+        long diff = vlEndDate.getTime() - vlStartDate.getTime();
         return (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
     }
 

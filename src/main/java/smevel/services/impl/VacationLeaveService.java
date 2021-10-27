@@ -24,6 +24,7 @@ import smevel.services.abst.BaseEntityService;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static smevel.constants.StringConstants.VACATION_LEAVE;
 
@@ -121,8 +122,18 @@ public class VacationLeaveService extends BaseEntityService<VacationLeave,
     private Collection<VacationLeave> getVacationsByDateRanges(String startDateString, String endDateString) {
         Date startDate = DateFormatter.getDateByFormattedStringBy(startDateString);
         Date endDate = DateFormatter.getDateByFormattedStringBy(endDateString);
-        return vacationLeaveRepo.findByDateRange(startDate, endDate);
+        return getVacationsByDateRanges(startDate, endDate);
+    }
 
+    public Collection<VacationLeaveBean> getVacationsBeansByDateRanges(String startDateString, String endDateString) {
+        return getVacationsByDateRanges(startDateString, endDateString)
+                .stream()
+                .map(this::convertEntityToBean)
+                .collect(Collectors.toList());
+    }
+
+    private Collection<VacationLeave> getVacationsByDateRanges(Date startDate, Date endDate) {
+        return vacationLeaveRepo.findByDateRange(startDate, endDate);
     }
 
     private Collection<VacationLeave> getVacationsByEmployeeId(String employeeId) {

@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import smevel.beans.EmployeeBean;
 import smevel.beans.PositionBean;
+import smevel.beans.ProjectBean;
 import smevel.beans.VacationLeaveBean;
 import smevel.dto.excel.data.AllVacationReportData;
+import smevel.dto.excel.data.BaseVacationLeaveData;
 import smevel.services.impl.VacationLeaveService;
 
 import javax.transaction.Transactional;
@@ -37,19 +39,20 @@ public class AllVacationReportDataCollector {
         } else {
             String nameSurname = employeeBean.getName() + " " + employeeBean.getFemale();
             PositionBean positionBean = employeeBean.getPositionBean();
-            if (positionBean == null) {
+            ProjectBean projectBean = employeeBean.getProjectBean();
+            if (positionBean == null || projectBean == null) {
                 return null;
             } else {
-                String positionName = positionBean.getPositionName();
                 Date vacationStartDate = vacationLeaveBean.getVacationStartDate();
                 Date vacationEndDate = vacationLeaveBean.getVacationEndDate();
-                return AllVacationReportData.builder()
-                        .nameAndSurname(nameSurname)
-                        .vlStartDate(vacationStartDate)
-                        .vlEndDate(vacationEndDate)
-                        .vlDuration(getVlDuration(vacationStartDate, vacationEndDate))
-                        .positionName(positionName)
-                        .build();
+                AllVacationReportData allVacationReportData = new AllVacationReportData();
+                allVacationReportData.setNameAndSurname(nameSurname);
+                allVacationReportData.setVlStartDate(vacationStartDate);
+                allVacationReportData.setVlEndDate(vacationEndDate);
+                allVacationReportData.setVlDuration(getVlDuration(vacationStartDate, vacationEndDate));
+                allVacationReportData.setPositionName(positionBean.getPositionName());
+                allVacationReportData.setProjectName(projectBean.getProjectName());
+                return allVacationReportData;
             }
         }
     }

@@ -1,5 +1,6 @@
 package smevel.services;
 
+import smevel.constants.ExcelConstants;
 import smevel.constants.StringConstants;
 
 import java.text.ParseException;
@@ -19,6 +20,10 @@ public class DateFormatter {
         } catch (ParseException e) {
             throw new IllegalArgumentException("Can't parse date: " + e.getMessage());
         }
+    }
 
+    public static String getFormattedStringFoReport() {
+        SimpleDateFormat formatter = new SimpleDateFormat(ExcelConstants.EXCEL_FILE_NAME_DATE_FORMAT);
+        return formatter.format(new Date());
     }
 }

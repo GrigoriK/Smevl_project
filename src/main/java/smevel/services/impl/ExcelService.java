@@ -4,29 +4,36 @@ import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import smevel.constants.ExcelConstants;
 import smevel.constants.StringConstants;
 import smevel.dto.excel.ExcelOutputData;
 import smevel.dto.excel.collector.AllVacationReportDataCollector;
-import smevel.dto.excel.data.AllVacationReportData;
+import smevel.dto.excel.collector.VacationDateRangeReportDataCollector;
+import smevel.dto.excel.data.BaseVacationLeaveData;
+import smevel.dto.excel.filter.DateRangeVacationFilter;
+import smevel.services.DateFormatter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 @Service
 public class ExcelService {
 
     private final AllVacationReportDataCollector allVacationReportDataCollector;
+    private final VacationDateRangeReportDataCollector vacationDateRangeReportDataCollector;
 
-    public ExcelOutputData getEmptyExcel() {
+    public ExcelOutputData getAllListOfVacations() {
         Workbook book = new XSSFWorkbook();
-        Sheet sheet = book.createSheet("Test");
-
-        Row row = sheet.createRow(0);
-        createStringCellUnderRow(row, "Name");
-        createStringCellUnderRow(row, "Surname");
+        Sheet sheet = book.createSheet(ExcelConstants.ALL_VACATIONS_REPORT_SHEET_NAME);
+        createRowWithTitlesUnderSheet(sheet, 1,
+                ExcelConstants.ALL_LIST_OF_VACATIONS_DATA_TITLES);
+        createAllVLDataRowsUnderSheet(getDateCellStyle(book), sheet, 2,
+                allVacationReportDataCollector::collectData);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
@@ -34,21 +41,25 @@ public class ExcelService {
             book.close();
             return ExcelOutputData.builder()
                     .excelContent(stream.toByteArray())
-                    .excelFileName("emptyExcelFile")
+                    .excelFileName(String.format(ExcelConstants.ALL_VACATIONS_REPORT_FILE_NAME,
+                            DateFormatter.getFormattedStringFoReport()))
                     .build();
         } catch (IOException e) {
             e.printStackTrace();
             return ExcelOutputData.builder().build();
         }
-
     }
 
-    public ExcelOutputData getAllListOfVacations() {
+    public ExcelOutputData getListOfVacationsByDateRange(DateRangeVacationFilter filter) {
         Workbook book = new XSSFWorkbook();
-        Sheet sheet = book.createSheet("All vacations");
-        createRowWithTitlesUnderSheet(sheet, 1,
-                StringConstants.allListOfVacations);
-        createAllVLDataRowsUnderSheet(getDateCellStyle(book), sheet, 2);
+        Sheet sheet = book.createSheet(ExcelConstants.VACATIONS_BY_DATE_REPORT_SHEET_NAME);
+        CellStyle dateCellStyle = getDateCellStyle(book);
+        createDateRangeRows(filter, sheet, 0, 0, dateCellStyle,
+                ExcelConstants.DATE_RANGES_TITLES);
+        createRowWithTitlesUnderSheet(sheet, 6,
+                ExcelConstants.ALL_LIST_OF_VACATIONS_DATA_TITLES);
+        createAllVLDataRowsUnderSheet(dateCellStyle, sheet, 7,
+                () -> vacationDateRangeReportDataCollector.collectData(filter));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
@@ -56,7 +67,8 @@ public class ExcelService {
             book.close();
             return ExcelOutputData.builder()
                     .excelContent(stream.toByteArray())
-                    .excelFileName("allVacations")
+                    .excelFileName(String.format(ExcelConstants.VACATIONS_BY_DATE_REPORT_FILE_NAME,
+                            DateFormatter.getFormattedStringFoReport()))
                     .build();
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,36 +78,54 @@ public class ExcelService {
 
     private void createRowWithTitlesUnderSheet(Sheet sheet, int rowNumber, Collection<String> titleList) {
         Row row = sheet.createRow(rowNumber);
-        titleList.forEach(title -> createStringCellUnderRow(row, title));
+        titleList.forEach(title -> createStringCellUnderRow(row, getLastCellNumber(row), title));
     }
 
-    private void createAllVLDataRowsUnderSheet(CellStyle styleDate, Sheet sheet, int startRowNumber) {
-        Collection<AllVacationReportData> allVacationReportDataCollection = allVacationReportDataCollector.collectData();
-        for (AllVacationReportData data : allVacationReportDataCollection) {
+    private void createAllVLDataRowsUnderSheet(CellStyle styleDate, Sheet sheet, int startRowNumber,
+                                               Supplier<Collection<? extends BaseVacationLeaveData>> reportDataSupplier) {
+        Collection<? extends BaseVacationLeaveData> baseVacationLeaveData = reportDataSupplier.get();
+        for (BaseVacationLeaveData data : baseVacationLeaveData) {
             Row row = sheet.createRow(startRowNumber);
-            createStringCellUnderRow(row, data.getNameAndSurname());
-            createDateCellUnderRow(styleDate, row, data.getVlStartDate());
-            createDateCellUnderRow(styleDate, row, data.getVlEndDate());
-            createIntCellUnderRow(row, data.getVlDuration());
-            createStringCellUnderRow(row, data.getPositionName());
+            createStringCellUnderRow(row, getLastCellNumber(row), data.getNameAndSurname());
+            createDateCellUnderRow(styleDate, row, getLastCellNumber(row), data.getVlStartDate());
+            createDateCellUnderRow(styleDate, row, getLastCellNumber(row), data.getVlEndDate());
+            createIntCellUnderRow(row, getLastCellNumber(row), data.getVlDuration());
+            createStringCellUnderRow(row, getLastCellNumber(row), data.getPositionName());
+            createStringCellUnderRow(row, getLastCellNumber(row), data.getProjectName());
             startRowNumber++;
         }
     }
 
+    private void createDateRangeRows(DateRangeVacationFilter filter, Sheet sheet,
+                                     int rowStartNumber, int cellStartNumber,
+                                     CellStyle dateStyle,
+                                     ArrayList<String> titleList) {
+        Row startRangeRow = sheet.createRow(rowStartNumber);
+        createStringCellUnderRow(startRangeRow, cellStartNumber, titleList.get(0));
+        createDateCellUnderRow(dateStyle, startRangeRow, cellStartNumber+1,
+                DateFormatter.getDateByFormattedStringBy(filter.getVacationStartDate()));
 
-    private void createStringCellUnderRow(Row row, String cellValue) {
-        Cell cell = row.createCell(getLastCellNumber(row));
+        Row endRangeRow = sheet.createRow(++rowStartNumber);
+        createStringCellUnderRow(endRangeRow, cellStartNumber, titleList.get(1));
+        createDateCellUnderRow(dateStyle, endRangeRow, cellStartNumber+1,
+                DateFormatter.getDateByFormattedStringBy(filter.getVacationEndDate()));
+
+    }
+
+
+    private void createStringCellUnderRow(Row row, int cellNumber, String cellValue) {
+        Cell cell = row.createCell(cellNumber);
         cell.setCellValue(cellValue);
     }
 
-    private void createDateCellUnderRow(CellStyle styleDate, Row row, Date cellValue) {
-        Cell cell = row.createCell(getLastCellNumber(row));
+    private void createDateCellUnderRow(CellStyle styleDate, Row row, int cellNumber, Date cellValue) {
+        Cell cell = row.createCell(cellNumber);
         cell.setCellValue(cellValue);
         cell.setCellStyle(styleDate);
     }
 
-    private void createIntCellUnderRow(Row row, int cellValue) {
-        Cell cell = row.createCell(getLastCellNumber(row));
+    private void createIntCellUnderRow(Row row, int cellNumber, int cellValue) {
+        Cell cell = row.createCell(cellNumber);
         cell.setCellValue(cellValue);
     }
 
